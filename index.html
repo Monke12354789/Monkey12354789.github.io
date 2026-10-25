@@ -2,38 +2,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GitHub Search</title>
-  <style>
-    body {
-      background: #0d1117;
-      color: #e6edf3;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 60px 16px;
-    }
-    h1 { color: #58a6ff; }
-    input, button {
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #30363d;
-      font-size: 16px;
-    }
-    input { width: 65%; max-width: 400px; }
-    button {
-      background: #238636;
-      color: white;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub Browser</title>
+<style>
+body{margin:0;background:#0d1117;color:#e6edf3;font-family:Arial,sans-serif}
+header{padding:18px;background:#161b22;border-bottom:1px solid #30363d}
+h2{margin:0;color:#58a6ff}
+main{max-width:850px;margin:24px auto;padding:16px}
+form{display:flex;gap:8px}
+input{flex:1;min-width:0;padding:13px;border-radius:8px;border:1px solid #30363d;background:#161b22;color:white;font-size:16px}
+button{padding:12px;border:0;border-radius:8px;background:#238636;color:white;font-size:15px}
+nav{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+iframe{width:100%;height:55vh;border:1px solid #30363d;border-radius:10px;background:white}
+#results a{color:#58a6ff}
+#results article{padding:12px 0;border-bottom:1px solid #30363d}
+small{color:#8b949e}
+</style>
 </head>
 <body>
-  <h1>GitHub Search</h1>
-  <p>Search the web</p>
-  <form action="https://www.google.com/search" method="get">
-    <input name="q" placeholder="Search the web..." required>
-    <button type="submit">Search</button>
-  </form>
+<header><h2>⌘ GitHub Browser</h2></header>
+<main>
+<form id="searchForm">
+<input id="q" placeholder="Search or enter a website..." required>
+<button>Go</button>
+</form>
+<nav>
+<button type="button" onclick="showSearch()">Search results</button>
+<button type="button" onclick="browseAddress()">Open website</button>
+<button type="button" onclick="backHome()">Home</button>
+</nav>
+<div id="results">
+<p>Search the web or enter a website address above.</p>
+</div>
+<section id="viewer" hidden>
+<p id="notice"></p>
+<iframe id="page" title="Website viewer"
+sandbox="allow-forms allow-scripts allow-same-origin allow-popups"></iframe>
+<p><button type="button" onclick="openExternal()">Open in Safari if blocked</button></p>
+</section>
+</main>
+<script>
+let currentUrl = "https://duckduckgo.com/";
+function validUrl(value) {
+  try {
+    const u = new URL(value);
+    return u.protocol === "https:" || u.protocol === "http:";
+  } catch { return false; }
+}
+function address(value) {
+  value = value.trim();
+  if (!value) return null;
+  if (!value.includes(" ") && value.includes(".") &&
+      !value.startsWith("http")) value = "https://" + value;
+  if (validUrl(value)) return value;
+  return null;
+}
+function browse(url) {
+  if (!validUrl(url)) return;
+  currentUrl = url;
+  document.getElementById("results").hidden = true;
+  document.getElementById("viewer").hidden = false;
+  document.getElementById("notice").textContent =
+    "Some websites block embedded viewing. If this panel stays blank, use Open in Safari if blocked.";
+  document.getElementById("page").src = url;
+}
+function openExternal() {
+  window.open(currentUrl, "_blank", "noopener");
+}
+function browseAddress() {
+  const value = document.getElementById("q").value;
+  const url = address(value);
+  if (url) browse(url);
+  else search(value);
+}
+function search(value) {
+  currentUrl = "https://duckduckgo.com/?q=" + encodeURIComponent(value);
+  document.getElementById("viewer").hidden = true;
+  const results = document.getElementById("results");
+  results.hidden = false;
+  results.innerHTML = "";
+  const title = document.createElement("h3");
+  title.textContent = "Search results";
+  results.appendChild(title);
+  const frame = document.createElement("iframe");
+  frame.title = "DuckDuckGo search results";
+  frame.style.height = "65vh";
+  frame.src = currentUrl;
+  results.appendChild(frame);
+  const fallback = document.createElement("p");
+  fallback.textContent = "If results are blocked, open the search directly:";
+  const link = document.createElement("a");
+  link.href = currentUrl;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.textContent = "Open search results";
+  fallback.appendChild(link);
+  results.appendChild(fallback);
+}
+function showSearch() {
+  search(document.getElementById("q").value || "web search");
+}
+function backHome() {
+  document.getElementById("q").value = "";
+  document.getElementById("viewer").hidden = true;
+  const results = document.getElementById("results");
+  results.hidden = false;
+  results.innerHTML = "<p>Search the web or enter a website address above.</p>";
+}
+document.getElementById("searchForm").addEventListener("submit", e => {
+  e.preventDefault();
+  browseAddress();
+});
+</script>
 </body>
 </html>
