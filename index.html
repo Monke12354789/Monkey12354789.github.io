@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Search</title>
+  <style>
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 60px 16px;
+    }
+    h1 { color: #58a6ff; }
+    input, button {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+      font-size: 16px;
+    }
+    input { width: 65%; max-width: 400px; }
+    button {
+      background: #238636;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>GitHub Search</h1>
+  <p>Search the web</p>
+  <form action="https://www.google.com/search" method="get">
+    <input name="q" placeholder="Search the web..." required>
+    <button type="submit">Search</button>
+  </form>
+</body>
+</html>
